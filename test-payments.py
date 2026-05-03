@@ -20,14 +20,30 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def load_credentials() -> str:
+    """Securely loads the API key from environment variables."""
+    # Load environment variables from a .env file (ensure .env is in .gitignore)
+    load_dotenv()
+    
+    api_key = os.getenv("KEY_API")
+    if not api_key:
+        logger.critical("Initialization Failed: KEY_API environment variable is missing.")
+        raise ValueError("Missing critical API credentials.")
+        
+    return api_key
+
 async def main():
-    # Make sure env vars and credentials are set
-    # You can hardcode credentials_path if needed
-    credentials_path = 'cdp_api_key.json'  
-    wallet_path = 'wallet_data.txt'
+    # Initialize credentials securely
+    try:
+        api_key = load_credentials()
+        logger.info("Credentials loaded securely. Initializing payment test sequence...")
+    except Exception as e:
+        logger.error(f"Fatal error during execution: {e}")
+        return
 
     # Initialize CDPAgent
-    agent = CDPAgent(credentials_path=credentials_path, wallet_path=wallet_path)
+    # Note: Assuming CDPAgent has been updated to accept api_key directly
+    agent = CDPAgent(api_key=api_key, wallet_path='wallet_data.txt')
 
     # Test create_charge tool directly
     # Set name, description, amount, currency as needed.
